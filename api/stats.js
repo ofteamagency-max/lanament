@@ -14,7 +14,8 @@ module.exports = async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const { KV_REST_API_URL: url, KV_REST_API_TOKEN: token } = process.env;
+  const url   = process.env.UPSTASH_REDIS_REST_URL   || process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
 
   const pipe = async (cmds) => {
     const r = await fetch(`${url}/pipeline`, {
