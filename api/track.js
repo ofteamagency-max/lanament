@@ -19,9 +19,15 @@ module.exports = async function handler(req, res) {
     body: JSON.stringify(cmds),
   });
 
+  const country = (req.headers['x-vercel-ip-country'] || 'XX').toUpperCase().slice(0, 2);
+
   try {
     if (type === 'pageview') {
-      await pipe([['INCR', 'v:total'], ['INCR', `v:${today}`]]);
+      await pipe([
+        ['INCR', 'v:total'],
+        ['INCR', `v:${today}`],
+        ['ZINCRBY', 'geo:visits', '1', country],
+      ]);
     } else if (type === 'click' && label) {
       await pipe([
         ['INCR', 'c:total'],

@@ -352,6 +352,29 @@
     transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  /* Geo section */
+  .geo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .geo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .geo-flag { font-size: 1.5rem; line-height: 1; flex-shrink: 0; }
+  .geo-info { flex: 1; min-width: 0; }
+  .geo-name { font-size: 0.82rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .geo-count { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
+  .geo-bar-bg { height: 3px; background: rgba(255,255,255,0.06); border-radius: 99px; margin-top: 6px; overflow: hidden; }
+  .geo-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--blue), var(--purple)); transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+
   /* Loading state */
   .loading {
     display: flex;
@@ -461,6 +484,27 @@ function showDashboard(data) {
   renderAll(data);
 }
 
+const COUNTRY_NAMES = {
+  US:'United States',GB:'United Kingdom',DE:'Germany',FR:'France',RU:'Russia',
+  UA:'Ukraine',PL:'Poland',IT:'Italy',ES:'Spain',NL:'Netherlands',CA:'Canada',
+  AU:'Australia',BR:'Brazil',MX:'Mexico',IN:'India',TR:'Turkey',SE:'Sweden',
+  NO:'Norway',DK:'Denmark',FI:'Finland',CZ:'Czech Republic',RO:'Romania',
+  HU:'Hungary',SK:'Slovakia',HR:'Croatia',RS:'Serbia',BG:'Bulgaria',LT:'Lithuania',
+  LV:'Latvia',EE:'Estonia',BY:'Belarus',KZ:'Kazakhstan',AZ:'Azerbaijan',
+  GE:'Georgia',AM:'Armenia',UZ:'Uzbekistan',XX:'Unknown',
+};
+
+function countryName(code) {
+  return COUNTRY_NAMES[code] || code;
+}
+
+function countryFlag(code) {
+  if (!code || code === 'XX' || code.length !== 2) return '🌍';
+  return code.toUpperCase().split('').map(c =>
+    String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)
+  ).join('');
+}
+
 function renderAll(data) {
   const topBtn = data.buttons.reduce((a, b) => b.total > a.total ? b : a, data.buttons[0]);
   const maxClicks = Math.max(...data.buttons.map(b => b.total), 1);
@@ -540,6 +584,22 @@ function renderAll(data) {
           </tr>`).join('')}
         </tbody>
       </table>
+    </div>
+
+    <div class="section-title">Top Countries</div>
+    <div class="geo-grid">
+      ${(data.topCountries && data.topCountries.length > 0) ? (() => {
+        const maxV = data.topCountries[0].visits || 1;
+        return data.topCountries.map(g => `
+          <div class="geo-row">
+            <div class="geo-flag">${countryFlag(g.country)}</div>
+            <div class="geo-info">
+              <div class="geo-name">${countryName(g.country)}</div>
+              <div class="geo-count">${g.visits.toLocaleString()} visitors</div>
+              <div class="geo-bar-bg"><div class="geo-bar-fill" style="width:${Math.round((g.visits/maxV)*100)}%"></div></div>
+            </div>
+          </div>`).join('');
+      })() : '<p style="color:var(--muted);font-size:0.85rem;padding:1rem 0">No geo data yet — data appears after real visitors.</p>'}
     </div>
   `;
 

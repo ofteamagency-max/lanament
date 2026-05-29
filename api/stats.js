@@ -48,6 +48,19 @@ module.exports = async function handler(req, res) {
   const btnTotals   = BUTTONS.map(() => R[i++]);
   const btnByDay    = BUTTONS.map(() => dates.map(() => R[i++]));
 
+  // Geo: top 10 countries via sorted set
+  const geoRes  = await fetch(`${url}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([['ZREVRANGE', 'geo:visits', '0', '9', 'WITHSCORES']]),
+  });
+  const geoJson = await geoRes.json();
+  const geoRaw  = geoJson[0]?.result || [];
+  const topCountries = [];
+  for (let j = 0; j < geoRaw.length; j += 2) {
+    topCountries.push({ country: geoRaw[j], visits: parseInt(geoRaw[j + 1]) || 0 });
+  }
+
   res.json({
     dates,
     visitsTotal,
@@ -55,6 +68,7 @@ module.exports = async function handler(req, res) {
     ctr: visitsTotal > 0 ? +((clicksTotal / visitsTotal) * 100).toFixed(1) : 0,
     visitsByDay,
     clicksByDay,
+    topCountries,
     buttons: BUTTONS.map((b, idx) => ({
       label: b,
       total: btnTotals[idx],
