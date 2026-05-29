@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lana Ment</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- Google Analytics — replace GA_MEASUREMENT_ID with your real ID -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'GA_MEASUREMENT_ID');
+
+  function trackClick(label) {
+    gtag('event', 'link_click', { link_label: label });
+  }
+</script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pink-50: #FFF0F5;
+    --pink-100: #FFD6E7;
+    --pink-200: #FFB3D1;
+    --pink-300: #FF85B3;
+    --pink-400: #FF5C96;
+    --pink-500: #E8447E;
+    --blush: #FDE8EF;
+    --petal: #FAD0DF;
+    --cream: #FFFAF8;
+    --text-dark: #2A1520;
+    --text-mid: #6B3A4D;
+    --text-light: #A06B82;
+    --white: #FFFFFF;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -120px;
+    right: -120px;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #FFD6E7 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px;
+    left: -100px;
+    width: 360px;
+    height: 360px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #FBBDD4 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .stars {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1.4rem;
+    animation: fadeUp 0.7s 0.1s ease both;
+    opacity: 0;
+  }
+  .star {
+    width: 7px; height: 7px;
+    background: var(--pink-400);
+    border-radius: 50%;
+  }
+  .star:nth-child(odd) { background: var(--pink-200); }
+
+  /* Avatar — portrait oval */
+  .avatar-wrap {
+    position: relative;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.7s 0.15s ease both;
+    opacity: 0;
+  }
+  .avatar-ring {
+    width: 220px;
+    height: 290px;
+    border-radius: 120px;
+    background: linear-gradient(135deg, var(--pink-300), var(--pink-100));
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 12px 40px rgba(232, 68, 126, 0.25);
+  }
+  .avatar-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 116px;
+    overflow: hidden;
+    background: var(--blush);
+  }
+  .avatar-inner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+
+  /* Name & bio */
+  .name {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    letter-spacing: -0.5px;
+    text-align: center;
+    margin-bottom: 0.4rem;
+    animation: fadeUp 0.7s 0.2s ease both;
+    opacity: 0;
+  }
+  .name em {
+    font-style: italic;
+    color: var(--pink-500);
+  }
+  .tagline {
+    font-size: 0.93rem;
+    color: var(--text-light);
+    text-align: center;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.7s 0.25s ease both;
+    opacity: 0;
+  }
+
+  .divider {
+    width: 48px;
+    height: 1.5px;
+    background: var(--petal);
+    border-radius: 2px;
+    margin: 0 auto 2rem;
+    animation: fadeUp 0.7s 0.3s ease both;
+    opacity: 0;
+  }
+
+  /* Link cards */
+  .links {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 2.5rem;
+  }
+
+  .link-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 15px 20px;
+    background: var(--white);
+    border: 1.5px solid var(--pink-100);
+    border-radius: 16px;
+    text-decoration: none;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.22s ease;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.7s ease both;
+    opacity: 0;
+  }
+  .link-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--pink-50) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.22s;
+  }
+  .link-card:hover {
+    border-color: var(--pink-300);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(232, 68, 126, 0.1);
+  }
+  .link-card:hover::before { opacity: 1; }
+  .link-card:active { transform: translateY(0); }
+
+  .link-card.primary {
+    background: linear-gradient(135deg, var(--pink-400), var(--pink-500));
+    border-color: transparent;
+    color: white;
+  }
+  .link-card.primary:hover {
+    box-shadow: 0 10px 28px rgba(232, 68, 126, 0.35);
+    border-color: transparent;
+  }
+  .link-card.primary .link-desc { color: rgba(255,255,255,0.8); }
+  .link-card.primary .card-arrow { color: rgba(255,255,255,0.7); }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 20px;
+    background: var(--pink-50);
+    position: relative;
+    z-index: 1;
+  }
+  .link-card.primary .card-icon {
+    background: rgba(255,255,255,0.2);
+  }
+  .card-icon.tg-icon {
+    background: transparent;
+    padding: 0;
+  }
+
+  .card-text {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+  }
+  .link-label {
+    font-weight: 500;
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
+  .link-desc {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    font-weight: 300;
+    margin-top: 1px;
+  }
+
+  .card-arrow {
+    font-size: 16px;
+    color: var(--pink-300);
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .link-card:hover .card-arrow { transform: translateX(3px); }
+
+  .link-card:nth-child(1) { animation-delay: 0.35s; }
+  .link-card:nth-child(2) { animation-delay: 0.42s; }
+  .link-card:nth-child(3) { animation-delay: 0.49s; }
+
+  .footer {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-align: center;
+    animation: fadeUp 0.7s 0.65s ease both;
+    opacity: 0;
+    line-height: 1.6;
+  }
+  .footer span { color: var(--pink-400); }
+
+  /* Decorative dots */
+  .deco-dots {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .dot {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--petal);
+    opacity: 0.5;
+  }
+  .d1 { width:12px;height:12px; top:12%;left:8%; }
+  .d2 { width:7px;height:7px; top:22%;left:18%; }
+  .d3 { width:10px;height:10px; top:8%;right:15%; }
+  .d4 { width:5px;height:5px; top:35%;right:9%; }
+  .d5 { width:8px;height:8px; bottom:25%;left:12%; }
+  .d6 { width:6px;height:6px; bottom:15%;right:20%; }
+  .d7 { width:14px;height:14px; bottom:40%;right:7%; }
+
+  @media (max-width: 480px) {
+    .name { font-size: 1.75rem; }
+    .link-card { padding: 13px 16px; }
+    .avatar-ring { width: 190px; height: 250px; }
+    .avatar-inner { border-radius: 100px; }
+    .avatar-ring { border-radius: 104px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deco-dots" aria-hidden="true">
+  <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div>
+  <div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div>
+  <div class="dot d7"></div>
+</div>
+
+<div class="page">
+
+  <div class="stars" aria-hidden="true">
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div>
+  </div>
+
+  <div class="avatar-wrap">
+    <div class="avatar-ring">
+      <div class="avatar-inner">
+        <!-- Save your photo as photo.jpg in the same folder -->
+        <img src="photo.jpeg" alt="Lana Ment" loading="eager">
+      </div>
+    </div>
+  </div>
+
+  <h1 class="name">Lana <em>Ment</em></h1>
+  <p class="tagline">trucker girl lifestyle</p>
+
+  <div class="divider"></div>
+
+  <div class="links">
+
+    <a href="https://t.me/+GscA8DQta3lhNGE6" class="link-card primary" target="_blank" rel="noopener"
+       onclick="trackClick('Exclusive Content')">
+      <div class="card-icon tg-icon">
+        <img src="logo1.png" alt="Telegram" width="38" height="38" style="border-radius:50%;display:block;">
+      </div>
+      <div class="card-text">
+        <div class="link-label">Exclusive Content</div>
+        <div class="link-desc">join my telegram channel ✨</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="https://t.me/+GscA8DQta3lhNGE6" class="link-card" target="_blank" rel="noopener"
+       onclick="trackClick('Chat with Me')">
+      <div class="card-icon">💬</div>
+      <div class="card-text">
+        <div class="link-label">Chat with Me</div>
+        <div class="link-desc">dm's &amp; community chat</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="https://t.me/+GscA8DQta3lhNGE6" class="link-card" target="_blank" rel="noopener"
+       onclick="trackClick('Latest Posts')">
+      <div class="card-icon">📸</div>
+      <div class="card-text">
+        <div class="link-label">Latest Posts</div>
+        <div class="link-desc">style, tips &amp; daily inspo</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+  </div>
+
+  <p class="footer">
+    made with <span>♥</span> &nbsp;·&nbsp; &copy; 2026 Lana Ment
+  </p>
+
+</div>
+</body>
+</html>
