@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — Lana Ment</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #07071A;
+    --surface:  rgba(255,255,255,0.035);
+    --border:   rgba(255,255,255,0.07);
+    --text:     #EEEBF8;
+    --muted:    rgba(238,235,248,0.42);
+    --pink:     #FF5C96;
+    --purple:   #A855F7;
+    --blue:     #4B9EFF;
+    --green:    #4ADE80;
+    --amber:    #FBBF24;
+    --radius:   16px;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    background: var(--bg);
+    background-image: radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 28px 28px;
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN ── */
+  #login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 380px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    backdrop-filter: blur(20px);
+  }
+  .login-brand {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.3rem;
+  }
+  .login-sub {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+  }
+  .login-input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 0.95rem;
+    padding: 0.85rem 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 0.75rem;
+  }
+  .login-input:focus { border-color: var(--pink); }
+  .login-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--pink), #C4336A);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.85rem;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .login-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .login-btn:active { transform: translateY(0); }
+  .login-error {
+    color: #F87171;
+    font-size: 0.82rem;
+    margin-top: 0.75rem;
+    min-height: 1.2em;
+  }
+
+  /* ── DASHBOARD ── */
+  #dashboard { display: none; padding: 0 0 3rem; }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 2rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(7,7,26,0.85);
+    backdrop-filter: blur(16px);
+    z-index: 10;
+  }
+  .header-brand {
+    font-size: 1.05rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    flex: 1;
+  }
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    color: var(--green);
+    font-weight: 500;
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .header-refresh {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 6px 14px;
+    transition: all 0.2s;
+  }
+  .header-refresh:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+  .header-logout {
+    background: none;
+    border: 1px solid rgba(248,113,113,0.3);
+    border-radius: 10px;
+    color: #F87171;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 6px 14px;
+    transition: all 0.2s;
+  }
+  .header-logout:hover { background: rgba(248,113,113,0.08); }
+
+  /* Main content */
+  .main { padding: 2rem 2rem 0; max-width: 1400px; margin: 0 auto; }
+
+  .section-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  /* KPI Grid */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.4rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--kpi-color);
+  }
+  .kpi-card::after {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--kpi-color) 0%, transparent 70%);
+    opacity: 0.08;
+    pointer-events: none;
+  }
+  .kpi-card.blue   { --kpi-color: var(--blue); }
+  .kpi-card.pink   { --kpi-color: var(--pink); }
+  .kpi-card.purple { --kpi-color: var(--purple); }
+  .kpi-card.amber  { --kpi-color: var(--amber); }
+
+  .kpi-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    margin-bottom: 1rem;
+  }
+  .kpi-label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 0.35rem;
+    letter-spacing: 0.02em;
+  }
+  .kpi-value {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1;
+    color: var(--text);
+  }
+  .kpi-value.small { font-size: 1.3rem; letter-spacing: -0.5px; }
+
+  /* Charts grid */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .chart-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .chart-legend {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .legend-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .chart-wrap { position: relative; height: 220px; }
+  .donut-wrap { position: relative; height: 220px; display: flex; align-items: center; justify-content: center; }
+
+  /* Table */
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .table-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+  thead th {
+    padding: 0.75rem 1.5rem;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.15s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.025); }
+  tbody td { padding: 1rem 1.5rem; vertical-align: middle; }
+  .btn-name { font-weight: 500; }
+  .btn-badge {
+    display: inline-block;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .btn-badge.top { background: rgba(251,191,36,0.15); color: var(--amber); }
+  .td-clicks { font-weight: 700; font-size: 1rem; }
+  .td-ctr { color: var(--green); font-weight: 600; }
+  .progress-bar-bg {
+    width: 140px;
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--pink), var(--purple));
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Loading state */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    gap: 10px;
+  }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-top-color: var(--pink);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 1024px) {
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .main { padding: 1.25rem 1rem 0; }
+    .header { padding: 1rem; }
+    thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
+  }
+  @media (max-width: 480px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .kpi-value { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-card">
+    <div class="login-brand">Lana Ment</div>
+    <div class="login-sub">Analytics Dashboard</div>
+    <input id="token-input" class="login-input" type="password" placeholder="Enter dashboard password" autocomplete="current-password">
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+  <div class="header">
+    <div class="header-brand">Lana Ment Analytics</div>
+    <div class="live-badge"><div class="live-dot"></div> Live</div>
+    <button class="header-refresh" onclick="loadStats()">Refresh</button>
+    <button class="header-logout" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="main" id="main-content">
+    <div class="loading"><div class="spinner"></div> Loading data…</div>
+  </div>
+
+</div>
+
+<script>
+const BUTTONS = ['Exclusive Content', 'Chat with Me', 'Latest Posts'];
+let token = localStorage.getItem('dash_token') || '';
+let lineChart, donutChart;
+
+// Auto-login if token saved
+if (token) loadStats();
+
+document.getElementById('token-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+async function doLogin() {
+  const t = document.getElementById('token-input').value.trim();
+  if (!t) return;
+  token = t;
+  const res = await fetch(`/api/stats?token=${encodeURIComponent(token)}`);
+  if (res.status === 401) {
+    document.getElementById('login-error').textContent = 'Wrong password. Try again.';
+    return;
+  }
+  localStorage.setItem('dash_token', token);
+  const data = await res.json();
+  showDashboard(data);
+}
+
+async function loadStats() {
+  const res = await fetch(`/api/stats?token=${encodeURIComponent(token)}`);
+  if (res.status === 401) { logout(); return; }
+  const data = await res.json();
+  showDashboard(data);
+}
+
+function logout() {
+  localStorage.removeItem('dash_token');
+  token = '';
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+}
+
+function showDashboard(data) {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  renderAll(data);
+}
+
+function renderAll(data) {
+  const topBtn = data.buttons.reduce((a, b) => b.total > a.total ? b : a, data.buttons[0]);
+  const maxClicks = Math.max(...data.buttons.map(b => b.total), 1);
+
+  document.getElementById('main-content').innerHTML = `
+
+    <div class="section-title">Overview</div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-icon">👁</div>
+        <div class="kpi-label">Total Visitors</div>
+        <div class="kpi-value" id="kv-visits">0</div>
+      </div>
+      <div class="kpi-card pink">
+        <div class="kpi-icon">👆</div>
+        <div class="kpi-label">Total Clicks</div>
+        <div class="kpi-value" id="kv-clicks">0</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-label">Overall CTR</div>
+        <div class="kpi-value" id="kv-ctr">—</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-icon">🏆</div>
+        <div class="kpi-label">Top Button</div>
+        <div class="kpi-value small" id="kv-top">—</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Visitors &amp; Clicks — Last 7 Days</div>
+          <div class="chart-legend">
+            <span><span class="legend-dot" style="background:#4B9EFF"></span>Visitors</span>
+            <span><span class="legend-dot" style="background:#FF5C96"></span>Clicks</span>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="line-chart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Click Share by Button</div>
+        </div>
+        <div class="donut-wrap"><canvas id="donut-chart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="section-title">Button Performance</div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Button</th>
+            <th>Total Clicks</th>
+            <th>CTR</th>
+            <th>Share</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.buttons.map((b, i) => `
+          <tr>
+            <td class="btn-name">
+              ${b.label}
+              ${b.total === topBtn.total && b.total > 0 ? '<span class="btn-badge top">Top</span>' : ''}
+            </td>
+            <td class="td-clicks">${b.total.toLocaleString()}</td>
+            <td class="td-ctr">${b.ctr}%</td>
+            <td>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" style="width:${maxClicks > 0 ? Math.round((b.total / maxClicks) * 100) : 0}%"></div>
+              </div>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  // Animate KPI numbers
+  animateNum('kv-visits', data.visitsTotal);
+  animateNum('kv-clicks', data.clicksTotal);
+  document.getElementById('kv-ctr').textContent = data.ctr + '%';
+  document.getElementById('kv-top').textContent = topBtn.label;
+
+  // Render charts
+  const labels = data.dates.map(d => {
+    const [, m, day] = d.split('-');
+    return `${parseInt(day)} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1]}`;
+  });
+
+  // Destroy old charts if re-rendering
+  if (lineChart) lineChart.destroy();
+  if (donutChart) donutChart.destroy();
+
+  // Line chart
+  const lineCtx = document.getElementById('line-chart').getContext('2d');
+  const blueGrad = lineCtx.createLinearGradient(0, 0, 0, 220);
+  blueGrad.addColorStop(0, 'rgba(75,158,255,0.3)');
+  blueGrad.addColorStop(1, 'rgba(75,158,255,0)');
+  const pinkGrad = lineCtx.createLinearGradient(0, 0, 0, 220);
+  pinkGrad.addColorStop(0, 'rgba(255,92,150,0.3)');
+  pinkGrad.addColorStop(1, 'rgba(255,92,150,0)');
+
+  lineChart = new Chart(lineCtx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Visitors',
+          data: data.visitsByDay,
+          borderColor: '#4B9EFF',
+          backgroundColor: blueGrad,
+          borderWidth: 2,
+          pointBackgroundColor: '#4B9EFF',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0.4,
+          fill: true,
+        },
+        {
+          label: 'Clicks',
+          data: data.clicksByDay,
+          borderColor: '#FF5C96',
+          backgroundColor: pinkGrad,
+          borderWidth: 2,
+          pointBackgroundColor: '#FF5C96',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0.4,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(20,20,40,0.95)',
+          borderColor: 'rgba(255,255,255,0.08)',
+          borderWidth: 1,
+          titleColor: '#EEEBF8',
+          bodyColor: 'rgba(238,235,248,0.6)',
+          padding: 12,
+          cornerRadius: 10,
+        },
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: 'rgba(238,235,248,0.4)', font: { size: 11 } },
+          border: { display: false },
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: 'rgba(238,235,248,0.4)', font: { size: 11 } },
+          border: { display: false },
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+
+  // Donut chart
+  const donutCtx = document.getElementById('donut-chart').getContext('2d');
+  const totalClicks = data.buttons.reduce((s, b) => s + b.total, 0);
+  donutChart = new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: data.buttons.map(b => b.label),
+      datasets: [{
+        data: totalClicks > 0 ? data.buttons.map(b => b.total) : [1, 1, 1],
+        backgroundColor: ['#FF5C96', '#A855F7', '#4B9EFF'],
+        borderColor: '#07071A',
+        borderWidth: 3,
+        hoverOffset: 6,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: 'rgba(238,235,248,0.6)',
+            padding: 16,
+            font: { size: 11 },
+            usePointStyle: true,
+            pointStyleWidth: 8,
+          },
+        },
+        tooltip: {
+          backgroundColor: 'rgba(20,20,40,0.95)',
+          borderColor: 'rgba(255,255,255,0.08)',
+          borderWidth: 1,
+          callbacks: {
+            label: (ctx) => {
+              if (!totalClicks) return ' No data yet';
+              const pct = ((ctx.parsed / totalClicks) * 100).toFixed(1);
+              return ` ${ctx.parsed} clicks (${pct}%)`;
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+function animateNum(id, target) {
+  const el = document.getElementById(id);
+  let current = 0;
+  const duration = 800;
+  const start = performance.now();
+  const step = (now) => {
+    const progress = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    current = Math.round(ease * target);
+    el.textContent = current.toLocaleString();
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+</script>
+</body>
+</html>
